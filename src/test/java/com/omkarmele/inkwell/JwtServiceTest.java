@@ -11,6 +11,7 @@ class JwtServiceTest {
     private static JwtService service(long minutes) {
         String secret = Base64.getEncoder().encodeToString("0123456789abcdef0123456789abcdef".getBytes());
         return new JwtService(new AppProperties("http://localhost", false,
+                new AppProperties.Cloudinary(""), new AppProperties.Mail(""),
                 new AppProperties.Jwt(secret, minutes), new AppProperties.Ai("", "m")));
     }
 
@@ -26,6 +27,7 @@ class JwtServiceTest {
         java.util.Arrays.fill(secretBytes, (byte) 0xff);
         String secret = Base64.getUrlEncoder().withoutPadding().encodeToString(secretBytes);
         JwtService s = new JwtService(new AppProperties("http://localhost", false,
+                new AppProperties.Cloudinary(""), new AppProperties.Mail(""),
                 new AppProperties.Jwt(secret, 5), new AppProperties.Ai("", "m")));
         assertEquals("user-1", s.verify(s.issue("user-1")).orElseThrow());
     }

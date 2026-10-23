@@ -45,9 +45,6 @@ public class PasswordResetService {
     @Value("${spring.mail.username:}")
     private String mailUsername;
 
-    @Value("${app.mail.from:noreply@inkwell.local}")
-    private String fromAddress;
-
     public String requestReset(String email) {
         var matchingUser = userRepository.findByEmailIgnoreCase(email.trim());
         if (matchingUser.isEmpty()) return "USER_NOT_FOUND";
@@ -64,7 +61,8 @@ public class PasswordResetService {
 
         String resetUrl = appProperties.frontendUrl() + "/reset-password?token=" + token;
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(StringUtils.hasText(fromAddress) ? fromAddress : mailUsername);
+        message.setFrom(StringUtils.hasText(appProperties.mail().from())
+                ? appProperties.mail().from() : mailUsername);
         message.setTo(user.getEmail());
         message.setSubject("Reset your Inkwell password");
         message.setText("Use this link to reset your Inkwell password. It expires in 15 minutes:\n\n"

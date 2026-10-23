@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import com.omkarmele.inkwell.config.AppProperties;
 import com.omkarmele.inkwell.exception.ApiException;
 import com.omkarmele.inkwell.dto.Dtos.UploadResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,11 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class StorageService {
-    @Value("${app.cloudinary.url:}")
-    private String cloudinaryUrl;
+    private final AppProperties appProperties;
 
     public UploadResponse storeImage(MultipartFile file) {
         if (file.isEmpty()) throw ApiException.badRequest("File is empty");
+        String cloudinaryUrl = appProperties.cloudinary().url();
         if (!StringUtils.hasText(cloudinaryUrl)) {
             throw new IllegalStateException("Cloudinary is not configured; set CLOUDINARY_URL");
         }

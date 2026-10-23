@@ -3,26 +3,27 @@ spring:
     name: inkwell
   mail:
     host: ${SMTP_HOST:smtp.gmail.com}
-    port: ${SMTP_PORT:587}
-    username: ${SMTP_USERNAME:}
-    password: ${SMTP_PASSWORD:}
+    port: 587
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
     properties:
       mail:
         smtp:
           auth: ${SMTP_AUTH:true}
           starttls:
-            enable: ${SMTP_STARTTLS_ENABLE:true}
+            enable: true
   data:
-    mongodb:
-      uri: ${MONGODB_URI:}
+    mongodb: 
+      database: ${DB_NAME}
+      uri: ${MONGODB_URI}
       auto-index-creation: true
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID:}
-            client-secret: ${GOOGLE_CLIENT_SECRET:}
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: openid,profile,email
   servlet:
     multipart:
@@ -40,15 +41,15 @@ management:
         include: health
 
 app:
-  frontend-url: ${FRONTEND_URL:http://localhost:5173}
-  cookie-secure: ${COOKIE_SECURE:false}   # set true in production (HTTPS)
+  frontend-url: ${FRONTEND_URL:http}
+  cookie-secure: false   # set true in production (HTTPS)
   cloudinary:
-    url: ${CLOUDINARY_URL:}
+    url: ${CLOUDINARY_URL}
   mail:
-    from: ${SMTP_FROM:omk3743@gmail.com}
+    from: ${SMTP_FROM}
   jwt:
-    secret: ${JWT_SECRET:}
+    secret: ${JWT_SECRET}
     expiry-minutes: 720
   ai:
-    api-key: ${GEMINI_API_KEY:}
-    model: ${GEMINI_MODEL:gemini-3.5-flash-lite}
+    api-key: ${GEMINI_API_KEY}
+    model: gemini-3.5-flash-lite

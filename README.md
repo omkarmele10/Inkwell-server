@@ -15,17 +15,20 @@ Tech stack : React (Vite), Spring Boot 3.5, MongoDB, JWT, OAuth2, Cloudinary (fo
 | Forgot password | Email reset link, expires after 15 minutes |
 | AI summary | generated async on publish (Gemini API), `POST /api/articles/{id}/summary` to redo |
 | Hashtags + search | `?tag=java`, `?q=text`, `?q=%23java`, `GET /api/hashtags/trending` |
-1. [ ] 1. [ ] * 1. |Swagger UI| ``****http://localhost:8080/swagger-ui.html****``|
+| Swagger UI | `****http://localhost:8080/swagger-ui.html****` |
 
 
-## How to Run Locally
-1. Copy `backend/.env.example` to `backend/.env` and fill in the credentials. The local `.env` is ignored by Git.
-2. Set `MONGODB_URI` to your MongoDB Atlas connection string.
-3. Configure Google OAuth, Gemini, Cloudinary, and SMTP credentials in `backend/.env`.
-4. Generate a JWT secret with `openssl rand -base64 48`.
-5. Run the backend with `mvn -f backend/pom.xml spring-boot:run` and the frontend with `npm --prefix frontend run dev`.
+## How to Run 
+Configure :
+  Google OAuth,
+  Gemini,
+  Cloudinary,
+  SMTP credentials,
+  JWT,
+  and MogoDB.
+then run the backend with `mvn -f backend/pom.xml spring-boot:run` .
 
-## Deploy (Vercel + Render + MongoDB Atlas)
+## Deploy (Render + MongoDB Atlas)
 1. Create a Render Blueprint from this repository using `render.yaml`. Render builds the backend using `backend/Dockerfile`.
 2. In the Render service environment, set the Atlas `MONGODB_URI`, the Vercel frontend URL as `FRONTEND_URL`, and the Google OAuth, Cloudinary, Gemini, and SMTP credentials. Render generates `JWT_SECRET`.
 3. In Vercel, proxy `/api`, `/oauth2`, and `/login/oauth2` to the Render backend URL. This keeps authentication cookies same-origin with the frontend.
