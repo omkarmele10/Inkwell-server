@@ -1,6 +1,5 @@
 # Inkwell: social publishing platform
-Tech stack : React (Vite), Spring Boot 3.5, MongoDB, JWT, OAuth2, Cloudinary (for images),
-
+Tech stack : React (Vite), Spring Boot 3.5, MongoDB, JWT, OAuth2, Cloudinary (for images)
 
 ## Features
 | Feature | Where |
@@ -28,14 +27,6 @@ Configure :
   and MogoDB.
 then run the backend with `mvn -f backend/pom.xml spring-boot:run` .
 
-## Deploy (Render + MongoDB Atlas)
-1. Create a Render Blueprint from this repository using `render.yaml`. Render builds the backend using `backend/Dockerfile`.
-2. In the Render service environment, set the Atlas `MONGODB_URI`, the Vercel frontend URL as `FRONTEND_URL`, and the Google OAuth, Cloudinary, Gemini, and SMTP credentials. Render generates `JWT_SECRET`.
-3. In Vercel, set the project root directory to `frontend` and set the frontend build environment variable `BACKEND_URL` to the Render backend origin (for example, `https://your-service.onrender.com`). The frontend calls this backend URL directly.
-4. Add `https://<your-render-domain>/login/oauth2/code/google` as an authorized redirect URI in the Google OAuth client.
-5. In Render, set `FRONTEND_URL` to the exact Vercel frontend origin. The frontend sends bearer tokens directly to the backend; all secrets remain in Render.
-
-For local development, set `BACKEND_URL=http://localhost:8080` in `frontend/.env`. Images load directly from Cloudinary.
 
 ## Security design
 - **Login**: Google (OIDC) proves identity; the backend issues a short-lived, one-time in-memory grant, exchanged by the frontend for the app JWT. Email/password login returns the JWT directly. Run one backend instance so the exchange request reaches the instance that created the grant.
@@ -50,9 +41,6 @@ For local development, set `BACKEND_URL=http://localhost:8080` in `frontend/.env
 - Errors are RFC 7807 problem details; stack traces never reach the client.
 
 
-## Before production
-- For direct cross-origin deployments, configure `FRONTEND_URL` to the exact Vercel origin. The backend CORS policy allows that origin and the bearer Authorization header; no cookies are used for API authentication.
-- Add refresh tokens (Redis, which you already used) and rate limiting (Bucket4j) on write endpoints.
-- Images are uploaded to Cloudinary; article records store secure Cloudinary URLs.
-- Replace notification polling with SSE/WebSocket; move async work to Kafka if you scale out.
-- Add moderation: report button + admin role.
+## feature i will add in future
+- refresh tokens (Redis)
+- rate limiting (Bucket4j) 
