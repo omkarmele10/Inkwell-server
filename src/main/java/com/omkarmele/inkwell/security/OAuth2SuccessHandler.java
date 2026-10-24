@@ -8,19 +8,19 @@ import lombok.RequiredArgsConstructor;
 import com.omkarmele.inkwell.config.AppProperties;
 import com.omkarmele.inkwell.model.User;
 import com.omkarmele.inkwell.service.UserService;
-import org.springframework.http.HttpHeaders;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-/** After Google confirms the user: upsert the account, set our own JWT as an HttpOnly cookie, go back to the SPA. */
+/** After Google confirms the user, issue a one-time grant and send it to the SPA for token exchange. */
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     private final UserService userService;
-    private final JwtService jwtService;
-    private final AuthCookies authCookies;
+    private final AuthGrantService authGrantService;
     private final AppProperties appProperties;
 
     @Override
@@ -40,9 +40,9 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             response.sendRedirect(appProperties.frontendUrl() + "/login?error=account_exists");
             return;
         }
-        response.addHeader(HttpHeaders.SET_COOKIE, authCookies.issue(jwtService.issue(user.getId())).toString());
+        String code = URLEncoder.encode(authGrantService.issue(user.getId()), StandardCharsets.UTF_8);
         HttpSession session = request.getSession(false);   // the session only existed for the OAuth handshake
         if (session != null) session.invalidate();
-        response.sendRedirect(appProperties.frontendUrl() + "/");
+        response.sendRedirect(appProperties.frontendUrl() + "/#authCode=" + code);
     }
 }

@@ -25,6 +25,8 @@ public final class Dtos {
 
     public record MeResponse(String id, String name, String email, String avatarUrl) {}
 
+    public record AuthResponse(String accessToken, String id, String name, String email, String avatarUrl) {}
+
     public record EmailAuthRequest(@NotBlank @Email @Size(max = 254) String email,
                                   @NotBlank @Size(min = 8, max = 72) String password,
                                   @Size(min = 1, max = 60) String name) {}

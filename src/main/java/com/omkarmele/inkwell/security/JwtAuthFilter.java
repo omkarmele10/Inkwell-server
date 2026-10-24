@@ -2,7 +2,6 @@ package com.omkarmele.inkwell.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -13,7 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-// This filter checks for a JWT token in the request cookies or Authorization header, verifies it, and sets the authentication in the security context if valid.
+// This filter verifies bearer JWTs and sets the authentication in the security context when valid.
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
 
@@ -31,11 +30,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private String resolveToken(HttpServletRequest request) {
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if (AuthCookies.NAME.equals(cookie.getName())) return cookie.getValue();
-            }
-        }
         String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         return authorizationHeader != null && authorizationHeader.startsWith("Bearer ")
                 ? authorizationHeader.substring(7) : null;
