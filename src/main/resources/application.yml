@@ -41,9 +41,9 @@ management:
         include: health
 
 app:
-  frontend-url: ${FRONTEND_URL:http://localhost:5173}
-  cookie-secure: ${COOKIE_SECURE:false}
-  cookie-same-site: ${COOKIE_SAME_SITE:Lax}
+  frontend-url: ${FRONTEND_URL}
+  cookie-secure: true
+  cookie-same-site: None
   cloudinary:
     url: ${CLOUDINARY_URL}
   mail:
