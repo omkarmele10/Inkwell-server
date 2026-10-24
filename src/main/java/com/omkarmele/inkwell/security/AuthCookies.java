@@ -21,6 +21,7 @@ public class AuthCookies {
     }
 
     private ResponseCookie.ResponseCookieBuilder base(String value) {
-        return ResponseCookie.from(NAME, value).httpOnly(true).secure(appProperties.cookieSecure()).sameSite("Lax").path("/");
+        return ResponseCookie.from(NAME, value).httpOnly(true).secure(appProperties.cookieSecure())
+                .sameSite(appProperties.cookieSameSite()).path("/");
     }
 }

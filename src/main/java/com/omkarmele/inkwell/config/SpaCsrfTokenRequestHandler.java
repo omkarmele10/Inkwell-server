@@ -9,7 +9,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.util.StringUtils;
 
-/** Standard Spring Security recipe for SPAs: the token cookie is written on every response and the SPA echoes it in a header. */
+/** Standard Spring Security SPA handler; exposes the raw token in a CORS-readable response header. */
 final class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
     private final CsrfTokenRequestHandler plainTokenHandler = new CsrfTokenRequestAttributeHandler();
     private final CsrfTokenRequestHandler xorTokenHandler = new XorCsrfTokenRequestAttributeHandler();
@@ -17,7 +17,8 @@ final class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken) {
         xorTokenHandler.handle(request, response, csrfToken);
-        csrfToken.get(); // force the deferred token to load so the cookie is written
+        CsrfToken token = csrfToken.get();
+        response.setHeader("X-CSRF-TOKEN", token.getToken());
     }
 
     @Override

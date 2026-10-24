@@ -31,15 +31,15 @@ then run the backend with `mvn -f backend/pom.xml spring-boot:run` .
 ## Deploy (Render + MongoDB Atlas)
 1. Create a Render Blueprint from this repository using `render.yaml`. Render builds the backend using `backend/Dockerfile`.
 2. In the Render service environment, set the Atlas `MONGODB_URI`, the Vercel frontend URL as `FRONTEND_URL`, and the Google OAuth, Cloudinary, Gemini, and SMTP credentials. Render generates `JWT_SECRET`.
-3. In Vercel, proxy `/api`, `/oauth2`, and `/login/oauth2` to the Render backend URL. This keeps authentication cookies same-origin with the frontend.
-4. Add `https://<your-vercel-domain>/login/oauth2/code/google` as an authorized redirect URI in the Google OAuth client.
-5. Do not put server secrets in frontend or commit them. Configure secrets in Render's environment settings; Vercel only needs the backend proxy URL.
+3. In Vercel, set the project root directory to `frontend` and set the frontend build environment variable `BACKEND_URL` to the Render backend origin (for example, `https://your-service.onrender.com`). The frontend calls this backend URL directly.
+4. Add `https://<your-render-domain>/login/oauth2/code/google` as an authorized redirect URI in the Google OAuth client.
+5. In Render, set `FRONTEND_URL` to the exact Vercel frontend origin. Set `COOKIE_SECURE=true` and `COOKIE_SAME_SITE=None` for cross-site cookie authentication over HTTPS. `BACKEND_URL` is public, not a secret; keep all credentials and signing secrets in Render only.
 
-During local development, Vite forwards API and sign-in requests to the backend. Images load directly from Cloudinary.
+For local development, set `BACKEND_URL=http://localhost:8080` in `frontend/.env`. Images load directly from Cloudinary.
 
 ## Security design
-- **Login**: Google (OIDC) proves identity; the backend then issues its **own JWT in an HttpOnly, SameSite=Lax cookie**. The token is never readable from JavaScript (XSS cannot steal it) and never appears in a URL.
-- **CSRF**: cookie auth requires it. Spring's `CookieCsrfTokenRepository` + SPA handler; axios echoes `XSRF-TOKEN` in `X-XSRF-TOKEN`.
+- **Login**: Google (OIDC) proves identity; the backend then issues its **own JWT in an HttpOnly cookie**. The token is never readable from JavaScript (XSS cannot steal it) and never appears in a URL.
+- **CSRF**: cookie auth requires it. Spring exposes the CSRF token in a CORS-readable response header; the frontend sends it as `X-XSRF-TOKEN`.
 - **No server session**: the HTTP session exists only during the OAuth handshake and is invalidated right after.
 - **Authorization**: ownership is checked in the service layer (author-only edit/delete, drafts hidden from others).
 - **Uploads**: type detected from magic bytes (not the client's header), random UUID file names, SVG rejected.
@@ -50,7 +50,7 @@ During local development, Vite forwards API and sign-in requests to the backend.
 
 
 ## Before production
-- `COOKIE_SECURE=true`, serve frontend and API from the same domain over HTTPS (reverse proxy), set `FRONTEND_URL`.
+- For direct cross-origin deployments, use HTTPS and configure `FRONTEND_URL`, `COOKIE_SECURE=true`, and `COOKIE_SAME_SITE=None`. Browser third-party-cookie restrictions may still prevent cookies when Vercel and Render use unrelated domains; a custom frontend/API subdomain under the same site avoids that limitation.
 - Add refresh tokens (Redis, which you already used) and rate limiting (Bucket4j) on write endpoints.
 - Images are uploaded to Cloudinary; article records store secure Cloudinary URLs.
 - Replace notification polling with SSE/WebSocket; move async work to Kafka if you scale out.
