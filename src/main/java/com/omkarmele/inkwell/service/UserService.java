@@ -3,6 +3,7 @@ package com.omkarmele.inkwell.service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 import com.omkarmele.inkwell.exception.ApiException;
 import com.omkarmele.inkwell.model.Follow;
@@ -27,7 +28,10 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public User register(String email, String password, String name) {
-        String normalizedEmail = email.trim().toLowerCase();
+        String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);
+        if (userRepository.findByEmailIgnoreCase(normalizedEmail).isPresent()) {
+            throw ApiException.badRequest("An account with this email already exists");
+        }
         User user = new User();
         user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordEncoder.encode(password));
@@ -48,6 +52,7 @@ public class UserService {
     }
 
     public User upsertFromGoogle(String googleSubject, String email, String name, String avatarUrl) {
+        String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);
         return userRepository.findByGoogleId(googleSubject).map(existingUser -> {
             if (avatarUrl != null && !avatarUrl.equals(existingUser.getAvatarUrl())) {
                 existingUser.setAvatarUrl(avatarUrl);
@@ -55,15 +60,15 @@ public class UserService {
             }
             return existingUser;
         }).orElseGet(() -> {
-            if (userRepository.findByEmailIgnoreCase(email).isPresent()) {
+            if (userRepository.findByEmailIgnoreCase(normalizedEmail).isPresent()) {
                 throw new com.omkarmele.inkwell.exception.ApiException(
                         org.springframework.http.HttpStatus.CONFLICT,
                         "An account already exists for this email.");
             }
             User newUser = new User();
             newUser.setGoogleId(googleSubject);
-            newUser.setEmail(email);
-            newUser.setName(name != null ? name : email);
+            newUser.setEmail(normalizedEmail);
+            newUser.setName(name != null ? name : normalizedEmail);
             newUser.setAvatarUrl(avatarUrl);
             newUser.setCreatedAt(Instant.now());
             return userRepository.save(newUser);
