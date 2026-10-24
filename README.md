@@ -1,5 +1,5 @@
 # Inkwell: social publishing platform
-Tech stack : React (Vite), Spring Boot 3.5, MongoDB, JWT, OAuth2, Cloudinary (for images)
+Tech stack : React (Vite), Spring Boot, MongoDB, JWT, OAuth2, Cloudinary (for images)
 
 ## Features
 | Feature | Where |
